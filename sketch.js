@@ -1,7 +1,7 @@
-let dims = [29, 15];
-let size = 50;
-let width = dims[0] * size;
-let height = dims[1] * size;
+let size = 20;
+let width = window.innerWidth;
+let height = window.innerHeight;
+let dims = [Math.floor(window.innerWidth / size), Math.floor(window.innerHeight / size)];
 let colors = [...Array(dims[0])].map((_) => Array(dims[1]).fill(0));
 
 let MAX_DIST;
@@ -24,7 +24,7 @@ function setup() {
   noStroke();
   colorMode(HSB, COLOR_MODE_MAX);
 
-  MAX_DIST = dist(0, 0, width, height);
+  MAX_DIST = dist(0, 0, width, height) * 2;
 
   reset_colors();
   background(0);
@@ -33,17 +33,10 @@ function setup() {
 function draw() {
   for (let i = 0; i < dims[0]; i++) {
     for (let j = 0; j < dims[1]; j++) {
-      let offset = lerp(
-        0,
-        COLOR_MODE_MAX,
-        dist(mouseX, mouseY, i * size, j * size) / MAX_DIST
-      );
-      // let color_variable =
-      //   (colors[i][j] + offset + frameCount / 10) % COLOR_MODE_MAX;
-      // fill(color, DEFAULT_SATURATION, DEFAULT_BRIGHTNESS);
-      let color_variable =
-        abs(((colors[i][j] + offset + frameCount / 2) % 120) - 60) + 20;
-      fill(DEFAULT_HUE, color_variable, DEFAULT_BRIGHTNESS);
+      let mouseOffset = (dist(mouseX, mouseY, i * size, j * size) / MAX_DIST) * COLOR_MODE_MAX;
+      let frameCountOffset = frameCount / 10;
+      let color_variable = colors[i][j] + mouseOffset + frameCountOffset;
+      fill(clamp(color_variable, 80, 90), clamp(color_variable, 30, 60), DEFAULT_BRIGHTNESS);
       square(i * size, j * size, size);
     }
   }
@@ -51,4 +44,9 @@ function draw() {
 
 function mouseClicked() {
   reset_colors();
+}
+
+function clamp(value, lo, hi) {
+  let mod = hi - lo;
+  return abs((value % (2 * mod)) - mod) + lo;
 }
